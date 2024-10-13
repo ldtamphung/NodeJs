@@ -5,7 +5,7 @@ const connection = mysql.createConnection({
   user: 'root',
   password: '123456',
   database: 'nodeJsStudy',
-  port: 3307 // Sửa thành cổng của bạn nếu khác
+  port: 3306 // Sửa thành cổng của bạn nếu khác
 });
 
 connection.connect((err) => {
