@@ -8,4 +8,4 @@ services:
       - MYSQL_DATABASE=nodeJsStudy
       - MYSQL_ROOT_PASSWORD=123456
     ports:
-      - "3306"
+      - "3307"
