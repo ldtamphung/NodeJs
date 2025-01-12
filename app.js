@@ -22,7 +22,7 @@ app.use('/', webRouter);
 // Sử dụng router cho các route người dùng
 app.use('/api', userRoutes);
 
-app.listen(port, () => {
+app.listen(port, '0.0.0.0', () => {
   console.log(`Example app listening on port ${port}`)
 })
 
