@@ -2,7 +2,7 @@
 
 const getHomePage = (req ,res) =>{
     //xu li data call model
-    res.send('Hello Tam Phung den voi NodeJs');
+    res.send('Hello Tam Phung den voi NodeJs abc');
 }
 module.exports = {
     getHomePage
