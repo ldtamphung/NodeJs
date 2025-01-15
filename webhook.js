@@ -1,24 +1,52 @@
 const express = require('express');
+const bodyParser = require('body-parser');
 const { exec } = require('child_process');
+const crypto = require('crypto');
 
 const app = express();
-app.use(express.json());
+const PORT = 8082;
+const SECRET = '987654321123456789';  // Khóa bí mật bạn đã cấu hình trên GitHub webhook
 
+// Cấu hình body-parser để xử lý JSON request
+app.use(bodyParser.json());
+
+// Xử lý webhook
 app.post('/webhook', (req, res) => {
-  const { ref } = req.body;
-  console.log(`Received ref: ${ref}`); // Log the ref value to the console
+  // Kiểm tra header 'X-Hub-Signature' để xác minh yêu cầu đến từ GitHub
+  const signature = req.headers['x-hub-signature'];
+  const payload = JSON.stringify(req.body);
+  const hmac = crypto.createHmac('sha1', SECRET);
+  const digest = `sha1=${hmac.update(payload).digest('hex')}`;
+
+  // So sánh signature
+  if (signature !== digest) {
+    return res.status(403).send('Không hợp lệ - Chữ ký không đúng');
+  }
+
+  const { ref } = req.body;  // Lấy nhánh mà sự kiện xảy ra
+
+  console.log(`Nhận được ref: ${ref}`);
+
+  // Nếu sự kiện là push vào nhánh main
   if (ref === 'refs/heads/main') {
     exec('cd /home/ubuntu/NodeJs && git pull && npm install && pm2 restart nodeJsApp', (err, stdout, stderr) => {
       if (err) {
-        console.error(`Error: ${stderr}`);
-        return res.status(500).send(stderr);
+        console.error(`Lỗi khi thực thi lệnh: ${err.message}`);
+        return res.status(500).send('Lỗi khi cập nhật mã nguồn.');
       }
-      console.log(stdout);
-      res.status(200).send('Deployment successful!');
+      if (stderr) {
+        console.error(`stderr: ${stderr}`);
+        return res.status(500).send('Lỗi khi cập nhật mã nguồn.');
+      }
+      console.log(`stdout: ${stdout}`);
+      return res.status(200).send('Mã nguồn đã được cập nhật và ứng dụng đã được khởi động lại!');
     });
   } else {
-    res.status(200).send('No deployment needed.');
+    return res.status(400).send('Nhánh không hợp lệ.');
   }
 });
 
-app.listen(8082, () => console.log('Webhook server running on port 8082'));
+// Lắng nghe cổng 8082
+app.listen(PORT, () => {
+  console.log(`Server đang lắng nghe trên cổng ${PORT}`);
+});
