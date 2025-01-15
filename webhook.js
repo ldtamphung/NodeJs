@@ -27,8 +27,9 @@ app.post('/webhook', (req, res) => {
 
   console.log(`Nhận được ref: ${ref}`);
 
-  // Nếu sự kiện là push vào nhánh main
-  if (ref === 'refs/heads/main') {
+  // Kiểm tra xem ref có phải là "refs/heads/main" không
+  const branch = ref.split('/').pop();  // Lấy phần cuối của ref
+  if (branch === 'main') {
     exec('cd /home/ubuntu/NodeJs && git pull && npm install && pm2 restart nodeJsApp', (err, stdout, stderr) => {
       if (err) {
         console.error(`Lỗi khi thực thi lệnh: ${err.message}`);
