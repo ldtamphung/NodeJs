@@ -6,7 +6,7 @@ app.use(express.json());
 
 app.post('/webhook', (req, res) => {
   const { ref } = req.body;
-  res.status(200).send(ref);
+  console.log(`Received ref: ${ref}`); // Log the ref value to the console
   if (ref === 'refs/heads/main') {
     exec('git pull && npm install && pm2 restart nodeJsApp', (err, stdout, stderr) => {
       if (err) {
